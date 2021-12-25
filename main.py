@@ -1,7 +1,9 @@
 import shutil
 import requests
 import traceback
+from nb_log import get_logger
 
+logger = get_logger("updateHost", log_level_int=1)
 
 class CopyError(Exception):
     """An Copy Error occurred."""
@@ -20,13 +22,13 @@ class UpdateHosts:
     }
 
     def read_hosts(self, host_url: str):
-        print('Current url:', host_url)
+        logger.info(f'Current url:{host_url}')
         response = requests.get(host_url, headers=self.headers, timeout=300)
         if response.status_code == 200:
             self.new_hosts_content = response.text
-            print('Read the remote contents successfully.')
+            logger.info('Read the remote contents successfully.')
         else:
-            print('Get contents failed...Exit')
+            logger.error('Get contents failed...Exit')
             exit(-1)
 
     def read_hosts_online(self):
@@ -37,31 +39,30 @@ class UpdateHosts:
                 self.read_hosts(link)
                 break
             except:
-                print('Read Hosts From Online Fail:', traceback.format_exc())
+                logger.error(f'Read Hosts From Online Fail: {traceback.format_exc()}')
                 error_num += 1
                 continue
         if error_num == len(link_list):
-            print(' The two links are unreachable. '.center(60, '*'))
+            logger.error(' The two links are unreachable. '.center(60, '*'))
             for i in link_list:
-                print(i)
+                logger.info(i)
             exit(-1)
 
     def copy_hosts(self):
-        print('Start to make a backup of hosts file.')
+        logger.info('Start to make a backup of hosts file.')
         try:
             shutil.copy(self.hosts_file_origin, self.hosts_file_backup)
         except PermissionError:
-            print('Permission Error(See details bellow):\n',
-                  traceback.format_exc())
+            logger.error(f'Permission Error(See details bellow):\n{traceback.format_exc()}')
             exit(-1)
         except CopyError:
-            print('Copy Error(See details bellow):\n', traceback.format_exc())
+            logger.error(f'Copy Error(See details bellow):\n{traceback.format_exc()}')
             exit(-1)
 
-        print('Copy done.')
+        logger.info('Copy done.')
 
     def write_new_content_to_hosts(self):
-        print('Start to write the new contents to hosts file.')
+        logger.info('Start to write the new contents to hosts file.')
         with open(self.hosts_file_origin, 'r') as f_r:
             self.origin_hosts = f_r.readlines()
 
@@ -73,7 +74,7 @@ class UpdateHosts:
         with open(self.hosts_file_origin, 'w') as f_w:
             f_w.writelines(self.origin_hosts)
 
-        print('Write done.')
+        logger.info('Write done.')
 
 
 def main():

@@ -1,19 +1,42 @@
-import shutil
+import platform
 import requests
+import shutil
 import traceback
+from typing import Union
 from nb_log import get_logger
 
 logger = get_logger("updateHost", log_level_int=1)
+
+
+def retrieve_host_file(system: str, host_type: Union["origin", "backup"]) -> str:
+    logger.info(f"Current system: {system}, hosts file type: {host_type}")
+    different_system_host = {
+        "Linux": {
+            "origin": "/etc/hosts",
+            "backup": "/etc/hosts.bk"
+        },
+        "Darwin": {
+            "origin": "/etc/hosts",
+            "backup": "/etc/hosts.bk"
+        },
+        "Windows": {
+            "origin": r"c:\Windows\System32\Drivers\etc\hosts",
+            "backup": r"c:\Windows\System32\Drivers\etc\hosts.bk"
+        }
+    }
+    return different_system_host.get(system).get(host_type)
+
 
 class CopyError(Exception):
     """An Copy Error occurred."""
 
 
 class UpdateHosts:
+    platform_sytem = platform.system()
     hosts_online_link1 = 'https://raw.hellogithub.com/hosts'
     hosts_online_link2 = 'https://raw.githubusercontent.com/521xueweihan/GitHub520/main/hosts'
-    hosts_file_origin = '/etc/hosts'
-    hosts_file_backup = '/etc/hosts.bk'
+    hosts_file_origin = retrieve_host_file(platform_sytem, "origin")
+    hosts_file_backup = retrieve_host_file(platform_sytem, "backup")
     new_hosts_content = ''
     origin_hosts = []
     headers = {

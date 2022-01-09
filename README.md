@@ -2,17 +2,19 @@
 
 A script to automatically update the github's proxy IP in hosts file. Now only Mac and Linux are supported.
 
-## Reference
+## 1 Reference
 
 The data comes from this repository - [GitHub520](https://github.com/521xueweihan/GitHub520).
 
-## Usage
+## 2 Usage
 
 You need to have a python3 environment and use `python3 -m pip install -r requirements.txt` command to install necessary third-party libraries.
 
-## How to run it
+## 3 How to run it
 
 Before you run this script, you need to export `PYHTONPATH` variable to global environment.
+
+### 3.1 Linux or MacOS
 
 ```bash
 export PYHTONPATH=[your local current project root path.]
@@ -22,7 +24,7 @@ export PYHTONPATH=[your local current project root path.]
 python3 main.py
 ```
 
-## Schedule it to run at any time
+#### 3.1.1 Schedule it to run at any time
 
 You need to create a crontab task to run it at any time. Such as:
 
@@ -32,7 +34,7 @@ You need to create a crontab task to run it at any time. Such as:
 
 I set this script to be run at **minute 0 past every 4th hour.**
 
-## Crontab Syntax
+#### 3.1.2 Crontab Syntax
 
 |Field|Description|Allowed Value|
 |-|-|-|
@@ -45,5 +47,22 @@ I set this script to be run at **minute 0 past every 4th hour.**
 
 There are some useful websites:
 
-- https://www.geeksforgeeks.org/crontab-in-linux-with-examples/ - crontab examples and grammar focus.
-- https://crontab.guru/ - Grammar Checking.
+- [crontab-in-linux-with-examples](https://www.geeksforgeeks.org/crontab-in-linux-with-examples/) - crontab examples and grammar focus.
+- [crontab.guru](https://crontab.guru/) - Grammar Checking.
+
+### 3.2 Windows
+
+1. [Right Click]Computer > Properties >Advanced System Settings > Environment Variables
+2. Click [New] under "System Variable"
+3. Variable Name: **PYHTONPATH**, Variable Value: [your local current project root path]
+4. Click [OK] and exit the **Settings Window**.
+
+[your local current project root path]: ""
+
+```bash
+python3 main.py
+```
+
+#### 3.2.1 Schedule it to run at any time
+
+You can reference this article: [schedule-tasks-windows-10](https://windowsreport.com/schedule-tasks-windows-10/) or [scheduled-task-windows](https://www.technipages.com/scheduled-task-windows) to create a cron task.

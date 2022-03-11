@@ -2,7 +2,7 @@ import platform
 import requests
 import shutil
 import traceback
-from typing import Union
+from typing import Union, List
 from nb_log import get_logger
 
 logger = get_logger("updateHost", log_level_int=1)
@@ -38,6 +38,7 @@ class UpdateHosts:
     hosts_file_origin = retrieve_host_file(platform_sytem, "origin")
     hosts_file_backup = retrieve_host_file(platform_sytem, "backup")
     new_hosts_content = ''
+    new_hosts_content_first_line = '# GitHub520 Host Start\n'
     origin_hosts = []
     headers = {
         'user-agent':
@@ -49,7 +50,7 @@ class UpdateHosts:
         response = requests.get(host_url, headers=self.headers, timeout=300)
         if response.status_code == 200:
             self.new_hosts_content = response.text
-            logger.info('Read the remote contents successfully.')
+            logger.info('Read the remote contents successfully')
         else:
             logger.error('Get contents failed...Exit')
             exit(-1)
@@ -72,7 +73,7 @@ class UpdateHosts:
             exit(-1)
 
     def copy_hosts(self):
-        logger.info('Start to make a backup of hosts file.')
+        logger.info('Start to make a backup of hosts file')
         try:
             shutil.copy(self.hosts_file_origin, self.hosts_file_backup)
         except PermissionError:
@@ -82,22 +83,29 @@ class UpdateHosts:
             logger.error(f'Copy Error(See details bellow):\n{traceback.format_exc()}')
             exit(-1)
 
-        logger.info('Copy done.')
+        logger.info('Copy done')
 
     def write_new_content_to_hosts(self):
-        logger.info('Start to write the new contents to hosts file.')
+        logger.info('Start to write the new contents to hosts file')
         with open(self.hosts_file_origin, 'r') as f_r:
             self.origin_hosts = f_r.readlines()
 
+        new_content_start_line_number = self.locate_last_line(self.origin_hosts)
         hosts_length = len(self.origin_hosts)
-        for i in range(18, hosts_length)[::-1]:
+        for i in range(new_content_start_line_number, hosts_length)[::-1]:
             del self.origin_hosts[i]
 
         self.origin_hosts.append(self.new_hosts_content)
         with open(self.hosts_file_origin, 'w') as f_w:
             f_w.writelines(self.origin_hosts)
 
-        logger.info('Write done.')
+        logger.info('Write done')
+    
+    def locate_last_line(self, origin_file_list: List[str]) -> int:
+        try:
+            return origin_file_list.index(self.new_hosts_content_first_line)
+        except Exception:
+            return len(origin_file_list)
 
 
 def main():
